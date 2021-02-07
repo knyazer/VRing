@@ -32,8 +32,8 @@ add_definitions(
 
 add_executable(
     VRing main.cpp
-    shaders/shader.hpp
-    shaders/shader.cpp
+    include/shader.hpp
+	src/shader.cpp
 )
 
 target_link_libraries(VRing
