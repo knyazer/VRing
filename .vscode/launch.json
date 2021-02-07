@@ -1,0 +1,16 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "(Windows) Запустить",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/VRing.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+    ]
+}
