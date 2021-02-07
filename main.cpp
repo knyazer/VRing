@@ -15,12 +15,14 @@ using namespace glm;
 
 #include <include/shader.hpp>
 #include <cassert>
+#include <chrono>
 
 #include <include/camera.hpp>
 #include <include/gl.hpp>
 #include <include/datatypes.hpp>
 #include <include/buffer.hpp>
 #include <include/voxel.hpp>
+#include <include/octotree.hpp>
 
 GL gl;
 
@@ -64,19 +66,19 @@ void computeMatricesFromInputs(Camera &camera) {
 	vec3 position = camera.pos;
 	// Move forward
 	if (glfwGetKey(gl.window, GLFW_KEY_UP) == GLFW_PRESS) {
-		position += direction * deltaTime * 1.1f;
+		position += direction * deltaTime * 5.1f;
 	}
 	// Move backward
 	if (glfwGetKey(gl.window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		position -= direction * deltaTime * 1.1f;
+		position -= direction * deltaTime * 5.1f;
 	}
 	// Strafe right
 	if (glfwGetKey(gl.window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		position += right * deltaTime * 1.1f;
+		position += right * deltaTime * 5.1f;
 	}
 	// Strafe left
 	if (glfwGetKey(gl.window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		position -= right * deltaTime * 1.1f;
+		position -= right * deltaTime * 5.1f;
 	}
 
 	camera.setPosition(position);
@@ -94,19 +96,18 @@ int main(void)
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-	vector<Voxel> voxels;
-	for (float x = -3; x <= 3; x += 0.3f)
-		for (float z = -3; z <= 3; z += 0.3f)
-			voxels.push_back(Voxel(vec(x, 0, z), 0.3f));
-	
-	cout << "Voxels created" << endl;
+	Octo octo(vec(-512,-512,-512), 1024);
+
+	for (int x = 0; x < 64; x++)
+		for (int y = 0; y < 64; y++)
+			for (int z = 0; z < 64; z++)
+			put(octo, vec(-x, z, -y));
+
 
 	Buffer buf;
-	buf.data = &voxels;
+	buf.octo = octo;
 
 	gl.bindBuffer(buf);
-
-	cout << "Buffers binded" << endl;
 
 	Camera camera;
 	glfwSetCursorPos(gl.window, 1024 / 2, 768 / 2);

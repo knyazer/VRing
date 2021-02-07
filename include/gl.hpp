@@ -123,16 +123,19 @@ public:
 	{
 		buf.update();
 
-		makeVertexBuffer();
-		glBufferData(GL_ARRAY_BUFFER, buf.vertexes.size() * sizeof(GLfloat), &buf.vertexes[0], GL_DYNAMIC_DRAW);
+		if (buf.vertexes.size() != 0)
+		{
+			assert(buf.colors.size() == buf.vertexes.size() && buf.barycentrics.size() == buf.vertexes.size());
 
-		makeColorBuffer();
-		glBufferData(GL_ARRAY_BUFFER, buf.colors.size() * sizeof(GLfloat), &buf.colors[0], GL_DYNAMIC_DRAW);
+			makeVertexBuffer();
+			glBufferData(GL_ARRAY_BUFFER, buf.vertexes.size() * sizeof(GLfloat), &buf.vertexes[0], GL_DYNAMIC_DRAW);
 
-		makeBarycentricBuffer();
-		glBufferData(GL_ARRAY_BUFFER, buf.barycentrics.size() * sizeof(GLfloat), &buf.barycentrics[0], GL_DYNAMIC_DRAW);
+			makeColorBuffer();
+			glBufferData(GL_ARRAY_BUFFER, buf.colors.size() * sizeof(GLfloat), &buf.colors[0], GL_DYNAMIC_DRAW);
 
-		assert(buf.colors.size() == buf.vertexes.size());
+			makeBarycentricBuffer();
+			glBufferData(GL_ARRAY_BUFFER, buf.barycentrics.size() * sizeof(GLfloat), &buf.barycentrics[0], GL_DYNAMIC_DRAW);
+		}
 
 		trianglesCount = buf.vertexes.size();
 	}

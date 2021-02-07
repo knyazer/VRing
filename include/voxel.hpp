@@ -7,7 +7,7 @@ class Voxel
 {
 public:
 	vec pos;
-	float size;
+	int size;
 
 	vector<rgb> colors;
 	vector<tri> faces;
@@ -15,7 +15,7 @@ public:
 	Voxel() 
 	{
 		size = 0;
-	};
+	}
 
 	Voxel(vec pos, float size)
 	{
@@ -36,12 +36,12 @@ public:
 	void calculateTri()
 	{
 		vec a, b, c, d, e, f, g, h;
-		a.x = b.x = e.x = f.x = pos.x - size / 2;
-		c.x = d.x = g.x = h.x = pos.x + size / 2;
-		a.y = d.y = e.y = h.y = pos.y + size / 2;
-		b.y = c.y = f.y = g.y = pos.y - size / 2;
-		a.z = b.z = c.z = d.z = pos.z - size / 2;
-		e.z = f.z = g.z = h.z = pos.z + size / 2;
+		a.x = b.x = e.x = f.x = pos.x;
+		c.x = d.x = g.x = h.x = pos.x + size;
+		a.y = d.y = e.y = h.y = pos.y + size;
+		b.y = c.y = f.y = g.y = pos.y;
+		a.z = b.z = c.z = d.z = pos.z;
+		e.z = f.z = g.z = h.z = pos.z + size;
 
 		faces =
 		{
@@ -73,7 +73,7 @@ public:
 	void update(vector<float> &vertexes, vector<float> &colors, vector<float> &barycentrics)
 	{
 		calculateTri();
-
+		
 		updateVertexes(vertexes);
 		updateColors(colors);
 		updateBarycentrics(barycentrics);
@@ -81,28 +81,25 @@ public:
 
 	void updateVertexes(vector<float>& vertexes)
 	{
-		for (auto &face : faces)
-			for (int point = 0; point < face.size(); point++)
-				for (int axis = 0; axis < face[point].size(); axis++)
-					vertexes.push_back(face[point][axis]);
-
+		for (int i = 0; i < 12; i++)
+			for (int point = 0; point < 3; point++)
+				for (int axis = 0; axis < 3; axis++)
+					vertexes.push_back(faces[i][point][axis]);
 	}
 
 	void updateColors(vector<float>& colors)
 	{
-		int i = 0;
-
-		for (auto &face : faces)
-			for (int point = 0; point < face.size(); point++)
-				for (int axis = 0; axis < face[point].size(); axis++)
-					colors.push_back(this->colors[((i++) / 18)%6][axis]);
+		for (int i = 0; i < 12; i++)
+			for (int point = 0; point < 3; point++)
+				for (int axis = 0; axis < 3; axis++)
+					colors.push_back(this->colors[i >> 1][axis]);
 	}
 
 	void updateBarycentrics(vector<float>& barycentrics)
 	{
-		for (auto &face : faces)
-			for (int point = 0; point < face.size(); point++)
-				for (int axis = 0; axis < face[point].size(); axis++)
+		for (int i = 0; i < 12; i++)
+			for (int point = 0; point < 3; point++)
+				for (int axis = 0; axis < 3; axis++)
 					barycentrics.push_back(point == axis);
 	}
 };

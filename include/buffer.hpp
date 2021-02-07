@@ -2,11 +2,16 @@
 #define BUFFER_HPP
 
 #include <include/voxel.hpp>
-
+#include <include/octotree.hpp>
 class Buffer
 {
 public:
-	vector<Voxel>* data;
+	Octo octo;
+
+	Buffer()
+	{
+
+	}
 
 	void update()
 	{
@@ -14,14 +19,28 @@ public:
 		vertexes.clear();
 		colors.clear();
 
-		vertexes.reserve(data->size() * 108);
-		colors.reserve(data->size() * 108);
-		barycentrics.reserve(data->size() * 108);
+		barycentrics.reserve(long(1e7));
+		vertexes.reserve(long(1e7));
+		colors.reserve(long(1e7));
 
-		for (auto &voxel : *data)
+		updateOcto(octo);
+	}
+
+	void updateOcto(Octo& tree)
+	{
+		// Exit if node is fully empty or fully filled
+		if (tree.type == EMPTY || tree.type == FILLED)
+			return;
+
+		if (tree.children.size() == 0)
 		{
-			voxel.update(vertexes, colors, barycentrics);
+			// Update only boundary voxels
+			tree.voxel.update(vertexes, colors, barycentrics);
+			return;
 		}
+
+		for (Octo& leaf : tree.children)
+			updateOcto(leaf);
 	}
 
 	vector<float> barycentrics, vertexes, colors;

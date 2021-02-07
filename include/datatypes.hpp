@@ -3,7 +3,7 @@
 
 struct vec
 {
-	float x, y, z;
+	int x, y, z;
 
 	vec()
 	{
@@ -12,14 +12,14 @@ struct vec
 		z = 0;
 	}
 
-	vec(float x, float y, float z)
+	vec(int x, int y, int z)
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	float& operator[](int i)
+	int& operator[](int i)
 	{
 		assert(("Unallowed access to index in vec structure", i >= 0 && i < 3));
 
@@ -31,6 +31,41 @@ struct vec
 			return z;
 
 		return x;
+	}
+
+	bool operator==(vec other)
+	{
+		return (x == other.x) && (y == other.y) && (z == other.z);
+	}
+
+	vec operator+(int other)
+	{
+		return vec(x + other, y + other, z + other);
+	}
+
+	vec operator+(vec other)
+	{
+		return vec(x + other.x, y + other.y, z + other.z);
+	}
+
+	bool operator<(vec other)
+	{
+		return (x < other.x) && (y < other.y) && (z < other.z);
+	}
+
+	bool operator<=(vec other)
+	{
+		return (x <= other.x) && (y <= other.y) && (z <= other.z);
+	}
+
+	bool operator>(vec other)
+	{
+		return (x > other.x) && (y > other.y) && (z > other.z);
+	}
+
+	bool operator>=(vec other)
+	{
+		return (x >= other.x) && (y >= other.y) && (z >= other.z);
 	}
 
 	int size()
