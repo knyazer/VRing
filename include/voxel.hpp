@@ -1,6 +1,9 @@
 #ifndef VOXEL_HPP
 #define VOXEL_HPP
 
+#include <include/datatypes.hpp>
+#include <include/camera.hpp>
+
 rgb COLORS[6] = { rgb(0.f, 0.5f, 0.3f), rgb(0.f, 1.f, 0.f), rgb(0.f, 0.f, 1.f), rgb(1.f, 0.f, 0.5f), rgb(0.3f, 0.2f, 0.5f), rgb(0.8f, 0.8f, 0.8f) };
 
 class Voxel
@@ -11,13 +14,14 @@ public:
 
 	vector<rgb> colors;
 	vector<tri> faces;
+	vector<bool> visible;
 
 	Voxel() 
 	{
 		size = 0;
 	}
 
-	Voxel(vec pos, float size)
+	Voxel(vec pos, int size)
 	{
 		this->pos = pos;
 		this->size = size;
@@ -28,7 +32,7 @@ public:
 		this->pos = pos;
 	}
 
-	void setSize(float size)
+	void setSize(int size)
 	{
 		this->size = size;
 	}
@@ -81,7 +85,7 @@ public:
 
 	void updateVertexes(vector<float>& vertexes)
 	{
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < faces.size(); i++)
 			for (int point = 0; point < 3; point++)
 				for (int axis = 0; axis < 3; axis++)
 					vertexes.push_back(faces[i][point][axis]);
@@ -89,7 +93,7 @@ public:
 
 	void updateColors(vector<float>& colors)
 	{
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < faces.size(); i++)
 			for (int point = 0; point < 3; point++)
 				for (int axis = 0; axis < 3; axis++)
 					colors.push_back(this->colors[i >> 1][axis]);

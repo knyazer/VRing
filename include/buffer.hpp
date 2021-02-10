@@ -3,10 +3,14 @@
 
 #include <include/voxel.hpp>
 #include <include/octotree.hpp>
+#include <include/camera.hpp>
+#include <include/timer.hpp>
+
 class Buffer
 {
 public:
-	Octo octo;
+	Octo* octo;
+	Camera* camera;
 
 	Buffer()
 	{
@@ -15,6 +19,9 @@ public:
 
 	void update()
 	{
+		Timer t;
+		t.begin();
+
 		barycentrics.clear();
 		vertexes.clear();
 		colors.clear();
@@ -24,23 +31,24 @@ public:
 		colors.reserve(long(1e7));
 
 		updateOcto(octo);
+		cout << "Updating octo in buffer:" << t.ms() << endl;
 	}
 
-	void updateOcto(Octo& tree)
+	void updateOcto(Octo* tree)
 	{
 		// Exit if node is fully empty or fully filled
-		if (tree.type == EMPTY || tree.type == FILLED)
+		if (tree->type == EMPTY || tree->type == FILLED)
 			return;
 
-		if (tree.children.size() == 0)
+		if (tree->children.size() == 0)
 		{
 			// Update only boundary voxels
-			tree.voxel.update(vertexes, colors, barycentrics);
+			tree->voxel.update(vertexes, colors, barycentrics);
 			return;
 		}
 
-		for (Octo& leaf : tree.children)
-			updateOcto(leaf);
+		for (Octo& leaf : tree->children)
+			updateOcto(&leaf);
 	}
 
 	vector<float> barycentrics, vertexes, colors;

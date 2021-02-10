@@ -15,7 +15,6 @@ using namespace glm;
 
 #include <include/shader.hpp>
 #include <cassert>
-#include <chrono>
 
 #include <include/camera.hpp>
 #include <include/gl.hpp>
@@ -23,6 +22,7 @@ using namespace glm;
 #include <include/buffer.hpp>
 #include <include/voxel.hpp>
 #include <include/octotree.hpp>
+#include <include/timer.hpp>
 
 GL gl;
 
@@ -94,24 +94,33 @@ int main(void)
 	if (!gl.init())
 		return -1;
 
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	Camera camera;
+	glfwSetCursorPos(gl.window, 1024 / 2, 768 / 2);
 
 	Octo octo(vec(-512,-512,-512), 1024);
+
+	Timer t;
+	t.begin();
 
 	for (int x = 0; x < 64; x++)
 		for (int y = 0; y < 64; y++)
 			for (int z = 0; z < 64; z++)
-			put(octo, vec(-x, z, -y));
+				put(octo, vec(-x, z, -y));
+	
+	updateFilling(octo, octo);
 
+	cout << "Building tree: " << t.ms() << endl;
+	t.clear();
 
 	Buffer buf;
-	buf.octo = octo;
+	buf.octo = &octo;
+	buf.camera = &camera;
 
 	gl.bindBuffer(buf);
 
-	Camera camera;
-	glfwSetCursorPos(gl.window, 1024 / 2, 768 / 2);
+	cout << "Binding buffer: " << t.ms() << endl;
 
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	do {
 		computeMatricesFromInputs(camera);
 		gl.clear();

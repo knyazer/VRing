@@ -122,10 +122,26 @@ void updateFillingOnce(Octo& tree, vec pos)
 void put(Octo& tree, vec pos)
 {
     tree.put(pos);
+
+    /*
     updateFillingOnce(tree, pos);
 
     for (vec& d : steps)
         updateFillingOnce(tree, pos + d);
+    
+    */
+}
+
+void updateFilling(Octo& root, Octo& tree)
+{
+    if (tree.children.size() == 0 && tree.type == BOUND)
+    {
+        updateFillingOnce(root, tree.voxel.pos);
+        return;
+    }
+
+    for (Octo& leaf : tree.children)
+        updateFilling(root, leaf);
 }
 
 void buildOcto(Octo& tree, int depth)
