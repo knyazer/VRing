@@ -101,9 +101,9 @@ int main(void)
 	Timer t;
 	t.begin();
 	
-	for (int x = 0; x < 100; x++)
-		for (int y = 0; y < 100; y++)
-			for (int z = 0; z < 100; z++)
+	for (int x = 0; x < 200; x++)
+		for (int y = 0; y < 200; y++)
+			for (int z = 0; z < 200; z++)
 				put(octo, vec(-x, z, -y));
 	
 	updateFilling(octo, octo);
@@ -118,8 +118,22 @@ int main(void)
 
 	cout << "Binding buffer: " << t.ms() << endl;
 
+	glEnable(GL_CULL_FACE); 
+	glCullFace(GL_BACK);
+
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-	do {
+
+	double lastTime = glfwGetTime();
+ 	int nbFrames = 0;
+ 	do{
+		double currentTime = glfwGetTime();
+		nbFrames++;
+		if ( currentTime - lastTime >= 0.5 ){
+			printf("%f ms/frame\n", 1000.0/double(nbFrames));
+			nbFrames = 0;
+			lastTime += 1.0;
+		}
+
 		computeMatricesFromInputs(camera);
 		gl.clear();
 		gl.draw(camera);
