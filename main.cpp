@@ -101,9 +101,9 @@ int main(void)
 	Timer t;
 	t.begin();
 	
-	for (int x = 0; x < 200; x++)
-		for (int y = 0; y < 200; y++)
-			for (int z = 0; z < 200; z++)
+	for (int x = 0; x < 100; x++)
+		for (int y = 0; y < 100; y++)
+			for (int z = 0; z < 100; z++)
 				put(octo, vec(-x, z, -y));
 	
 	updateFilling(octo, octo);
@@ -116,7 +116,7 @@ int main(void)
 	buf.camera = &camera;
 	gl.bindBuffer(buf);
 
-	//cout << "Binding buffer: " << t.ms() << endl;
+	cout << "Binding buffer: " << t.ms() << endl;
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	do {
