@@ -13,7 +13,6 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
 
-#include <include/shader.hpp>
 #include <cassert>
 
 #include <include/camera.hpp>
@@ -101,10 +100,10 @@ int main(void)
 
 	Timer t;
 	t.begin();
-
-	for (int x = 0; x < 64; x++)
-		for (int y = 0; y < 64; y++)
-			for (int z = 0; z < 64; z++)
+	
+	for (int x = 0; x < 200; x++)
+		for (int y = 0; y < 200; y++)
+			for (int z = 0; z < 200; z++)
 				put(octo, vec(-x, z, -y));
 	
 	updateFilling(octo, octo);
@@ -115,10 +114,9 @@ int main(void)
 	Buffer buf;
 	buf.octo = &octo;
 	buf.camera = &camera;
-
 	gl.bindBuffer(buf);
 
-	cout << "Binding buffer: " << t.ms() << endl;
+	//cout << "Binding buffer: " << t.ms() << endl;
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	do {

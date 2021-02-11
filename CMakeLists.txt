@@ -8,11 +8,9 @@ enable_testing()
 add_subdirectory (external)
 
 include_directories(
-	external/AntTweakBar-1.16/include/
 	external/glfw-3.1.2/include/
 	external/glm-0.9.7.1/
 	external/glew-1.13.0/include/
-	external/assimp-3.0.1270/include/
 	.
 )
 
@@ -32,7 +30,7 @@ add_definitions(
 
 add_executable(
     VRing main.cpp
-    include/shader.hpp
+	include/shader.hpp
 	src/shader.cpp
 )
 

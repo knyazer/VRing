@@ -22,13 +22,8 @@ public:
 		Timer t;
 		t.begin();
 
-		barycentrics.clear();
 		vertexes.clear();
-		colors.clear();
-
-		barycentrics.reserve(long(1e7));
 		vertexes.reserve(long(1e7));
-		colors.reserve(long(1e7));
 
 		updateOcto(octo);
 		cout << "Updating octo in buffer:" << t.ms() << endl;
@@ -43,7 +38,7 @@ public:
 		if (tree->children.size() == 0)
 		{
 			// Update only boundary voxels
-			tree->voxel.update(vertexes, colors, barycentrics);
+			tree->voxel.update(vertexes);
 			return;
 		}
 
@@ -51,7 +46,7 @@ public:
 			updateOcto(&leaf);
 	}
 
-	vector<float> barycentrics, vertexes, colors;
+	vector<float> vertexes;
 };
 
 #endif

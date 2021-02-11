@@ -14,11 +14,12 @@ using namespace std;
 
 #include <include/shader.hpp>
 
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
+GLuint LoadShaders(const char * vertex_file_path, const char* fragment_file_path, const char* geometry_file_path){
 
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
 
 	// Read the Vertex Shader code from the file
 	std::string VertexShaderCode;
@@ -42,6 +43,17 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 		sstr << FragmentShaderStream.rdbuf();
 		FragmentShaderCode = sstr.str();
 		FragmentShaderStream.close();
+	}
+
+
+	// Read the Fragment Shader code from the file
+	std::string GeometryShaderCode;
+	std::ifstream GeometryShaderStream(geometry_file_path, std::ios::in);
+	if (GeometryShaderStream.is_open()) {
+		std::stringstream sstr;
+		sstr << GeometryShaderStream.rdbuf();
+		GeometryShaderCode = sstr.str();
+		GeometryShaderStream.close();
 	}
 
 	GLint Result = GL_FALSE;
@@ -81,10 +93,25 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 	}
 
 
+	// Compile Fragment Shader
+	printf("Compiling shader : %s\n", geometry_file_path);
+	char const* GeometrySourcePointer = GeometryShaderCode.c_str();
+	glShaderSource(GeometryShaderID, 1, &GeometrySourcePointer, NULL);
+	glCompileShader(GeometryShaderID);
+
+	// Check Fragment Shader
+	glGetShaderiv(GeometryShaderID, GL_COMPILE_STATUS, &Result);
+	glGetShaderiv(GeometryShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if (InfoLogLength > 0) {
+		std::vector<char> GeometryShaderErrorMessage(InfoLogLength + 1);
+		glGetShaderInfoLog(GeometryShaderID, InfoLogLength, NULL, &GeometryShaderErrorMessage[0]);
+		printf("%s\n", &GeometryShaderErrorMessage[0]);
+	}
 
 	// Link the program
 	printf("Linking program\n");
 	GLuint ProgramID = glCreateProgram();
+	glAttachShader(ProgramID, GeometryShaderID);
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 	glLinkProgram(ProgramID);
@@ -101,9 +128,11 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 	
 	glDetachShader(ProgramID, VertexShaderID);
 	glDetachShader(ProgramID, FragmentShaderID);
+	glDetachShader(ProgramID, GeometryShaderID);
 	
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
+	glDeleteShader(GeometryShaderID);
 
 	return ProgramID;
 }

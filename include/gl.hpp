@@ -2,6 +2,7 @@
 #define GL_HPP
 
 #include <include/buffer.hpp>
+#include <include/shader.hpp>
 
 class GL
 {
@@ -87,7 +88,7 @@ public:
 
 	void compileShaders()
 	{
-		programID = LoadShaders("shaders/TransformVertexShader.vertexshader", "shaders/ColorFragmentShader.fragmentshader");
+		programID = LoadShaders("shaders/main.vs", "shaders/main.fs", "shaders/main.gs");
 	}
 
 	void makeMVP()
@@ -107,37 +108,17 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	}
 
-	void makeColorBuffer()
-	{
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	}
-
-	void makeBarycentricBuffer()
-	{
-		glGenBuffers(1, &barycentricBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, barycentricBuffer);
-	}
-
 	void bindBuffer(Buffer& buf)
 	{
 		buf.update();
 
 		if (buf.vertexes.size() != 0)
 		{
-			assert(buf.colors.size() == buf.vertexes.size() && buf.barycentrics.size() == buf.vertexes.size());
-
 			makeVertexBuffer();
 			glBufferData(GL_ARRAY_BUFFER, buf.vertexes.size() * sizeof(GLfloat), &buf.vertexes[0], GL_DYNAMIC_DRAW);
-
-			makeColorBuffer();
-			glBufferData(GL_ARRAY_BUFFER, buf.colors.size() * sizeof(GLfloat), &buf.colors[0], GL_DYNAMIC_DRAW);
-
-			makeBarycentricBuffer();
-			glBufferData(GL_ARRAY_BUFFER, buf.barycentrics.size() * sizeof(GLfloat), &buf.barycentrics[0], GL_DYNAMIC_DRAW);
 		}
 
-		trianglesCount = buf.vertexes.size();
+		pointsCount = buf.vertexes.size() / 3;
 	}
 
 	void clear()
@@ -177,30 +158,8 @@ public:
 			(void*)0            // array buffer offset
 		);
 
-		// 2nd attribute buffer : colors
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glVertexAttribPointer(
-			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-			3,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			(void*)0                          // array buffer offset
-		);
-
-		// 3d attribute buffer : barycentric
-		glBindBuffer(GL_ARRAY_BUFFER, barycentricBuffer);
-		glVertexAttribPointer(
-			2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-			3,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			(void*)0                          // array buffer offset
-		);
-
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, trianglesCount);
+		glDrawArrays(GL_POINTS, 0, pointsCount);
 
 		disableAttribArrays();
 
@@ -212,7 +171,6 @@ public:
 	void cleanup()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
-		glDeleteBuffers(1, &colorBuffer);
 		glDeleteProgram(programID);
 		glDeleteVertexArrays(1, &VertexArrayID);
 
@@ -247,10 +205,10 @@ public:
 	}
 
 	GLuint VertexArrayID, programID, matrixID;
-	GLuint vertexBuffer, colorBuffer, barycentricBuffer;
-	int trianglesCount;
+	GLuint vertexBuffer;
+	int pointsCount;
 
-	vector<int> attribIDs = { 0, 1, 2 };
+	vector<int> attribIDs = { 0 };
 
     GLFWwindow* window;
 };
