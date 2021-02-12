@@ -2,14 +2,14 @@
 #define BUFFER_HPP
 
 #include <include/voxel.hpp>
-#include <include/octotree.hpp>
+#include <include/octree.hpp>
 #include <include/camera.hpp>
 #include <include/timer.hpp>
-
+int cnt = 0;
 class Buffer
 {
 public:
-	Octo* octo;
+	Octree* oct;
 	Camera* camera;
 
 	Buffer()
@@ -25,25 +25,27 @@ public:
 		vertexes.clear();
 		vertexes.reserve(long(1e7));
 
-		updateOcto(octo);
+		loadOctree(&oct->root);
 		cout << "Updating octo in buffer:" << t.ms() << endl;
+		cout << cnt << " voxels" << endl;
 	}
 
-	void updateOcto(Octo* tree)
+	void loadOctree(OctoNode* node)
 	{
 		// Exit if node is fully empty or fully filled
-		if (tree->type == EMPTY || tree->type == FILLED)
+		if (node->type == EMPTY || node->type == FILLED)
 			return;
 
-		if (tree->children.size() == 0)
+		if (node->children.size() == 0)
 		{
 			// Update only boundary voxels
-			tree->voxel.update(vertexes);
+			node->voxel.update(vertexes);
+			cnt++;
 			return;
 		}
 
-		for (Octo& leaf : tree->children)
-			updateOcto(&leaf);
+		for (OctoNode& leaf : node->children)
+			loadOctree(&leaf);
 	}
 
 	vector<float> vertexes;

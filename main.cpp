@@ -20,7 +20,7 @@ using namespace glm;
 #include <include/datatypes.hpp>
 #include <include/buffer.hpp>
 #include <include/voxel.hpp>
-#include <include/octotree.hpp>
+#include <include/octree.hpp>
 #include <include/timer.hpp>
 
 GL gl;
@@ -96,23 +96,23 @@ int main(void)
 	Camera camera;
 	glfwSetCursorPos(gl.window, 1024 / 2, 768 / 2);
 
-	Octo octo(vec(-512,-512,-512), 1024);
+	Octree oct(vec(-512,-512,-512), 1024);
 
 	Timer t;
 	t.begin();
 	
-	for (int x = 0; x < 200; x++)
-		for (int y = 0; y < 200; y++)
-			for (int z = 0; z < 200; z++)
-				put(octo, vec(-x, z, -y));
-	
-	updateFilling(octo, octo);
+	for (int x = 0; x < 100; x++)
+		for (int y = 0; y < 100; y++)
+			for (int z = 0; z < 100; z++)
+				oct.put(vec(-x, z, -y));
+
+	oct.updateConnections();
 
 	cout << "Building tree: " << t.ms() << endl;
 	t.clear();
 
 	Buffer buf;
-	buf.octo = &octo;
+	buf.oct = &oct;
 	buf.camera = &camera;
 	gl.bindBuffer(buf);
 

@@ -38,6 +38,11 @@ struct vec
 		return (x == other.x) && (y == other.y) && (z == other.z);
 	}
 
+	bool operator!=(vec other)
+	{
+		return !operator==(other);
+	}
+
 	vec operator+(int other)
 	{
 		return vec(x + other, y + other, z + other);
