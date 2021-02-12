@@ -9,12 +9,7 @@
 
 using namespace std;
 
-typedef int connection_t;
-
-const connection_t EMPTY = 0;
-const connection_t FILLED = 1 << 7;
-
-vector<vec> steps = {vec(0, 0, 1), vec(0, 0, -1), vec(1, 0, 0), vec(-1, 0, 0), vec(0, 1, 0), vec(0, -1, 0)};
+vector<vec> steps = {vec(1, 0, 0), vec(-1, 0, 0), vec(0, 1, 0), vec(0, -1, 0), vec(0, 0, 1), vec(0, 0, -1)};
 
 class OctoNode
 {
@@ -23,7 +18,7 @@ public:
     vector<OctoNode> children;
     Voxel voxel;
 
-    connection_t type = EMPTY;
+    bool isExist = false;
 
     OctoNode()
     {
@@ -55,7 +50,7 @@ public:
     bool exist(vec pos)
     {
         if (voxel.size == 1)
-            return type != EMPTY;
+            return isExist;
 
         if (children.size() == 0)
             return false;
@@ -72,7 +67,7 @@ public:
     {
         if (voxel.size == 1)
         {
-            type = 1;
+            isExist = 1;
             return;
         }
 
@@ -83,18 +78,18 @@ public:
         {
             if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
             {
-                type = 1;
+                isExist = 1;
                 child.put(pos);
                 return;
             }
         }
     }
 
-    void updateType(vec pos, int type)
+    void updateConnection(vec pos, connection_t connection)
     {
         if (voxel.size == 1)
         {
-            this->type = type;
+            this->voxel.connection = connection;
             return;
         }
 
@@ -105,7 +100,7 @@ public:
         {
             if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
             {
-                child.updateType(pos, type);
+                child.updateConnection(pos, connection);
                 return;
             }
         }
@@ -146,15 +141,6 @@ public:
         root = OctoNode(pos, size);
     }
 
-    void updateConnectionAt(vec pos)
-    {
-        for (vec& d : steps)
-            if (!root.exist(pos + d))
-                return;
-
-        root.updateType(pos, FILLED);
-    }
-
     void updateConnectionAt(OctoNode* base)
     {
         if (base == nullptr)
@@ -163,14 +149,17 @@ public:
         vector<vec> lsteps = steps;
         int used = 0;
 
+        connection_t connection = 0;
+
         OctoNode* currentNode = base->parent;
         while (used != lsteps.size())
         {
             if (currentNode == nullptr)
-                return;
-
-            for (auto& step : lsteps)
+                break;
+            
+            for (uint8_t i = 0; i < lsteps.size(); i++)
             {
+                auto& step = lsteps[i];
                 if (step == vec(0, 0, 0))
                     continue;
                 
@@ -179,8 +168,8 @@ public:
                 {
                     if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
                     {
-                        if (!child.exist(pos))
-                            return;
+                        if (child.exist(pos))
+                            connection += (1 << i);
 
                         step = vec(0, 0, 0);
                         used++;
@@ -192,7 +181,9 @@ public:
             currentNode = currentNode->parent;
         }
 
-        base->type = FILLED;
+        base->voxel.connection = connection;
+
+        //cout << connection << endl;
     }
 
     void put(vec pos)

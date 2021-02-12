@@ -1,6 +1,10 @@
 #ifndef DATATYPES_HPP
 #define DATATYPES_HPP
 
+typedef uint8_t connection_t;
+
+const connection_t EMPTY = 0;
+const connection_t FILLED = 63;
 struct vec
 {
 	int x, y, z;

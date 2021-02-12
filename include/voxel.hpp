@@ -9,6 +9,8 @@ class Voxel
 public:
 	vec pos;
 	int size;
+	
+    connection_t connection = EMPTY;
 
 	Voxel() 
 	{
@@ -31,10 +33,12 @@ public:
 		this->size = size;
 	}
 
-	void update(vector<float> &vertexes)
+	void update(vector<int> &vertexes, vector<connection_t> &connections)
 	{
 		for (int i = 0; i < 3; i++)
 			vertexes.push_back(pos[i]);
+		
+		connections.push_back(connection);
 	}
 };
 

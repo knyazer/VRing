@@ -108,6 +108,12 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	}
 
+	void makeConnectionBuffer()
+	{
+		glGenBuffers(1, &connectionBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, connectionBuffer);
+	}
+
 	void bindBuffer(Buffer& buf)
 	{
 		buf.update();
@@ -115,7 +121,12 @@ public:
 		if (buf.vertexes.size() != 0)
 		{
 			makeVertexBuffer();
-			glBufferData(GL_ARRAY_BUFFER, buf.vertexes.size() * sizeof(GLfloat), &buf.vertexes[0], GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, buf.vertexes.size() * sizeof(GLint), &buf.vertexes[0], GL_DYNAMIC_DRAW);
+
+			makeConnectionBuffer();
+			glBufferData(GL_ARRAY_BUFFER, buf.connections.size() * sizeof(connection_t), &buf.connections[0], GL_DYNAMIC_DRAW);
+
+			cout << buf.connections[0] << endl;
 		}
 
 		pointsCount = buf.vertexes.size() / 3;
@@ -152,8 +163,17 @@ public:
 		glVertexAttribPointer(
 			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size
-			GL_FLOAT,           // type
+			GL_INT,             // type
 			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		glBindBuffer(GL_ARRAY_BUFFER, connectionBuffer);
+		glVertexAttribIPointer(
+			2,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+			1,                  // size
+			GL_UNSIGNED_BYTE,             // type
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
@@ -171,6 +191,7 @@ public:
 	void cleanup()
 	{
 		glDeleteBuffers(1, &vertexBuffer);
+		glDeleteBuffers(1, &connectionBuffer);
 		glDeleteProgram(programID);
 		glDeleteVertexArrays(1, &VertexArrayID);
 
@@ -205,10 +226,10 @@ public:
 	}
 
 	GLuint VertexArrayID, programID, matrixID;
-	GLuint vertexBuffer;
+	GLuint vertexBuffer, connectionBuffer;
 	int pointsCount;
 
-	vector<int> attribIDs = { 0 };
+	vector<int> attribIDs = { 0, 2 };
 
     GLFWwindow* window;
 };
