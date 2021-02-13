@@ -6,8 +6,6 @@
 #include <include/camera.hpp>
 #include <include/timer.hpp>
 
-
-int cnt = 0;
 class Buffer
 {
 public:
@@ -32,20 +30,18 @@ public:
 
 		loadOctree(&oct->root);
 		cout << "Updating octo in buffer:" << t.ms() << endl;
-		cout << cnt << " voxels" << endl;
 	}
 
 	void loadOctree(OctoNode* node)
 	{
 		// Exit if node is fully empty or fully filled
-		if (node->voxel.connection == FILLED || !node->isExist)
+		if (node->type == EMPTY || node->voxel.connection == FULLY_CONNECTED)
 			return;
 
-		if (node->children.size() == 0)
+		if (node->voxel.size == 1)
 		{
 			// Update only boundary voxels
 			node->voxel.update(vertexes, connections);
-			cnt++;
 			return;
 		}
 

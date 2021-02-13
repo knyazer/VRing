@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
-#include <set>
+#include <queue>
 #include <include/datatypes.hpp>
 
 using namespace std;
@@ -18,7 +18,7 @@ public:
     vector<OctoNode> children;
     Voxel voxel;
 
-    bool isExist = false;
+    int type = EMPTY;
 
     OctoNode()
     {
@@ -47,27 +47,41 @@ public:
         }
     }
 
-    bool exist(vec pos)
+    int filling(vec pos)
     {
         if (voxel.size == 1)
-            return isExist;
+            return type;
 
         if (children.size() == 0)
-            return false;
+        {
+            if (type == PARTIALLY_FILLED)
+                return EMPTY;
+
+            return type;
+        }
 
         for (auto& child : children)
             if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
-                return child.exist(pos);
+            {
+                if (child.type == EMPTY)
+                    return EMPTY;
+                else if (child.type == FILLED)
+                    return FILLED;
+                else
+                    return child.filling(pos);
+            }
         
         assert(("Problems with access to position in octree, children are not filled", 1));
-        return false;
+        return EMPTY;
     }
 
     void put(vec pos)
     {
+        type = PARTIALLY_FILLED;
+
         if (voxel.size == 1)
         {
-            isExist = 1;
+            type = FILLED;
             return;
         }
 
@@ -78,7 +92,6 @@ public:
         {
             if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
             {
-                isExist = 1;
                 child.put(pos);
                 return;
             }
@@ -138,7 +151,8 @@ public:
 
     Octree(vec pos, int size)
     {
-        root = OctoNode(pos, size);
+        size = 1 << size;
+        root = OctoNode(pos - vec(size / 2, size / 2, size / 2), size);
     }
 
     void updateConnectionAt(OctoNode* base)
@@ -168,7 +182,7 @@ public:
                 {
                     if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
                     {
-                        if (child.exist(pos))
+                        if (child.filling(pos) == FILLED)
                             connection += (1 << i);
 
                         step = vec(0, 0, 0);
@@ -182,8 +196,6 @@ public:
         }
 
         base->voxel.connection = connection;
-
-        //cout << connection << endl;
     }
 
     void put(vec pos)
@@ -210,6 +222,81 @@ private:
         
         for (auto& child : node->children)
             updateConnections(&child);
+    }
+};
+
+class Sphere
+{
+public:
+    int r;
+    vec pos;
+
+    Sphere(vec pos, int r)
+    {
+        this->pos = pos;
+        this->r = r;
+    }
+
+    bool in(vec a)
+    {
+        a = a - pos;
+        return a.sqlength() < isq(r);
+    }
+
+    int checkCube(vec origin, int size)
+    {
+        if ((origin + vec(size / 2, size / 2, size / 2) - pos).sqlength() > isq(size + r))
+            return 0;
+        
+        bool ans = true;
+        for (int i = 0; i < 8; i++)
+        {
+            int xm = i & 1, ym = (i >> 1) & 1, zm = (i >> 2) & 1;
+            vec p = origin + vec(size * xm, size * ym, size * zm);
+            ans &= in(p);
+        }
+
+        return ans ? 2 : 1;
+    }
+
+    void put(Octree& oct)
+    {
+        oct.root.type = PARTIALLY_FILLED;
+
+        queue<OctoNode*> q;
+        q.push(&oct.root);
+
+        while (!q.empty())
+        {
+            OctoNode* node = q.front();
+            q.pop();
+
+            if (node->voxel.size == 1)
+            {
+                node->type = FILLED;
+                continue;
+            }
+
+            if (node->children.size() == 0)
+                node->buildChildren();
+
+            for (auto& child : node->children)
+            {
+                int res = checkCube(child.voxel.pos, child.voxel.size);
+
+                if (res == 0)
+                    continue;
+
+                if (child.type == EMPTY)
+                    child.type = PARTIALLY_FILLED;
+
+                if (res == 1)
+                    q.push(&child);
+                
+                if (res == 2)
+                    child.type = FILLED;
+            }
+        }
     }
 };
 

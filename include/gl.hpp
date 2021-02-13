@@ -26,8 +26,8 @@ public:
 
 	void setVersion()
 	{
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	}
 
 	void setProfile()
@@ -160,11 +160,10 @@ public:
 		enableAttribArrays();
 		// 1rst attribute buffer : vertices
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(
+		glVertexAttribIPointer(
 			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size
 			GL_INT,             // type
-			GL_FALSE,           // normalized?
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
@@ -178,7 +177,6 @@ public:
 			(void*)0            // array buffer offset
 		);
 
-		// Draw the triangle !
 		glDrawArrays(GL_POINTS, 0, pointsCount);
 
 		disableAttribArrays();

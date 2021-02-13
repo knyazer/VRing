@@ -1,6 +1,6 @@
-#version 330 core
+#version 460 core
 
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in ivec3 aPos;
 //layout (location = 1) in vec3 color;
 layout (location = 2) in int connection;
 
@@ -13,5 +13,5 @@ void main()
 {
 	vs_out.color = vec3(0.4);
     vs_out.connection = connection;
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0); 
+    gl_Position = ivec4(aPos.x, aPos.y, aPos.z, 1.0); 
 }

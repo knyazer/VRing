@@ -10,7 +10,7 @@ public:
 	{
 		FOV = radians(60.0f);
 
-		pos = vec3(7, 7, 7);
+		pos = vec3(50, 50, 50);
 		COV = vec3(0, 0, 0);
 		up = vec3(0, 1, 0);
 

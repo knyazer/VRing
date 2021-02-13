@@ -3,8 +3,17 @@
 
 typedef uint8_t connection_t;
 
-const connection_t EMPTY = 0;
-const connection_t FILLED = 63;
+const connection_t FULLY_CONNECTED = 63;
+
+const int EMPTY = 0;
+const int PARTIALLY_FILLED = 1;
+const int FILLED = 2;
+
+template <typename T>
+long long isq(T a)
+{
+	return (long long(a)) * (long long(a));
+}
 struct vec
 {
 	int x, y, z;
@@ -57,6 +66,11 @@ struct vec
 		return vec(x + other.x, y + other.y, z + other.z);
 	}
 
+	vec operator-(vec other)
+	{
+		return vec(x - other.x, y - other.y, z - other.z);
+	}
+
 	bool operator<(vec other)
 	{
 		return (x < other.x) && (y < other.y) && (z < other.z);
@@ -80,6 +94,16 @@ struct vec
 	int size()
 	{
 		return 3;
+	}
+
+	float length()
+	{
+		return sqrt((long long)x * (long long)x + (long long)y * (long long)y + (long long)z * (long long)z);
+	}
+
+	long long sqlength()
+	{
+		return (long long)x * (long long)x + (long long)y * (long long)y + (long long)z * (long long)z;
 	}
 };
 
