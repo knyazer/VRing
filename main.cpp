@@ -101,7 +101,7 @@ int main(void)
 	Timer t;
 	t.begin();
 	
-	Sphere sphere(vec(0,0,0), 50);
+	Sphere sphere(vec(0,0,0), 150);
 	sphere.put(oct);
 
 /*
@@ -115,7 +115,7 @@ int main(void)
 					oct.put(vec(x, z, y));
 			}
 		}
-	}
+	}	
 	*/
 
 	cout << "Building tree: " << t.ms() << endl;
@@ -130,9 +130,6 @@ int main(void)
 	gl.bindBuffer(buf);
 
 	cout << "Binding buffer: " << t.ms() << endl;
-
-	glEnable(GL_CULL_FACE); 
-	glCullFace(GL_BACK);
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 

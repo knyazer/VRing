@@ -107,6 +107,10 @@ struct vec
 	}
 };
 
+vector<float> extract(vec3 x)
+{
+	return {(float)x.r, (float)x.g, (float)x.b};
+}
 struct tri
 {
 public:

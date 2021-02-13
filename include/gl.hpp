@@ -94,6 +94,7 @@ public:
 	void makeMVP()
 	{
 		matrixID = glGetUniformLocation(programID, "MVP");
+		camPosID = glGetUniformLocation(programID, "camPos");
 	}
 
 	void cameraPart()
@@ -156,6 +157,7 @@ public:
 		// Send our transformation to the currently bound shader, 
 		// in the "MVP" uniform
 		glUniformMatrix4fv(matrixID, 1, GL_FALSE, &camera.MVP[0][0]);
+		glUniform3fv(camPosID, 1, &extract(camera.pos)[0]);
 
 		enableAttribArrays();
 		// 1rst attribute buffer : vertices
@@ -223,7 +225,7 @@ public:
 		return 1;
 	}
 
-	GLuint VertexArrayID, programID, matrixID;
+	GLuint VertexArrayID, programID, matrixID, camPosID;
 	GLuint vertexBuffer, connectionBuffer;
 	int pointsCount;
 
