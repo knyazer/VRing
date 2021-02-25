@@ -126,8 +126,6 @@ public:
 
 			makeConnectionBuffer();
 			glBufferData(GL_ARRAY_BUFFER, buf.connections.size() * sizeof(connection_t), &buf.connections[0], GL_DYNAMIC_DRAW);
-
-			cout << buf.connections[0] << endl;
 		}
 
 		pointsCount = buf.vertexes.size() / 3;

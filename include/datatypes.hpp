@@ -1,22 +1,31 @@
 #ifndef DATATYPES_HPP
 #define DATATYPES_HPP
 
+#include <algorithm>
+
 typedef uint8_t connection_t;
 
 const connection_t FULLY_CONNECTED = 63;
+const connection_t NO_CONNECTIONS  = 0;
 
 const int EMPTY = 0;
 const int PARTIALLY_FILLED = 1;
 const int FILLED = 2;
 
 template <typename T>
-long long isq(T a)
+double sq(T a)
 {
-	return (long long(a)) * (long long(a));
+	return (double(a)) * (double(a));
 }
+
+int maxInt(int a, int b)
+{
+	return a > b ? a : b;
+}
+
 struct vec
 {
-	int x, y, z;
+	float x, y, z;
 
 	vec()
 	{
@@ -25,14 +34,14 @@ struct vec
 		z = 0;
 	}
 
-	vec(int x, int y, int z)
+	vec(float x, float y, float z)
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	int& operator[](int i)
+	float& operator[](int i)
 	{
 		assert(("Unallowed access to index in vec structure", i >= 0 && i < 3));
 
@@ -56,7 +65,7 @@ struct vec
 		return !operator==(other);
 	}
 
-	vec operator+(int other)
+	vec operator+(float other)
 	{
 		return vec(x + other, y + other, z + other);
 	}
@@ -69,6 +78,11 @@ struct vec
 	vec operator-(vec other)
 	{
 		return vec(x - other.x, y - other.y, z - other.z);
+	}
+
+	vec operator*(float other)
+	{
+		return vec(x * other, y * other, z * other);
 	}
 
 	bool operator<(vec other)
@@ -91,19 +105,38 @@ struct vec
 		return (x >= other.x) && (y >= other.y) && (z >= other.z);
 	}
 
+	vec& operator=(const vec& val)
+	{
+		x = val.x;
+		y = val.y;
+		z = val.z;
+		return *this;
+	}
+
+	float absolute()
+	{
+		return abs(x) + abs(y) + abs(z);
+	}
+
 	int size()
 	{
 		return 3;
 	}
 
-	float length()
+	double length()
 	{
-		return sqrt((long long)x * (long long)x + (long long)y * (long long)y + (long long)z * (long long)z);
+		return sqrt((double)x * (double)x + (double)y * (double)y + (double)z * (double)z);
 	}
 
-	long long sqlength()
+	double sqlength()
 	{
-		return (long long)x * (long long)x + (long long)y * (long long)y + (long long)z * (long long)z;
+		return (double)x * (double)x + (double)y * (double)y + (double)z * (double)z;
+	}
+
+	friend ostream& operator<<(ostream& os, const vec& v)
+	{
+		os << "vec(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return os;
 	}
 };
 

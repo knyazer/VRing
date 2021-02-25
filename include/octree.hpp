@@ -25,7 +25,7 @@ public:
 
     }
 
-    OctoNode(vec pos, int size)
+    OctoNode(vec& pos, int size)
     {
         voxel.setPosition(pos);
         voxel.setSize(size);
@@ -38,19 +38,22 @@ public:
 
         for (int i = 0; i < 8; i++)
         {
-            int sx = (i % 2);
-            int sy = ((i / 2) % 2);
-            int sz = ((i / 4) % 2);
+            int sx = (i & 1);
+            int sy = ((i >> 1) & 1);
+            int sz = ((i >> 2) & 1);
 
             children.push_back(OctoNode(vec(voxel.pos.x + sx * halfSize, voxel.pos.y + sy * halfSize, voxel.pos.z + sz * halfSize), halfSize));
             children[i].parent = this;
         }
     }
 
-    int filling(vec pos)
+    int filling(vec& pos, int size = 1)
     {
-        if (voxel.size == 1)
+        if (voxel.size == size)
             return type;
+
+        if (voxel.size < size)
+            return parent->filling(pos, size);
 
         if (children.size() == 0)
         {
@@ -75,7 +78,7 @@ public:
         return EMPTY;
     }
 
-    void put(vec pos)
+    void put(vec& pos)
     {
         type = PARTIALLY_FILLED;
 
@@ -98,7 +101,7 @@ public:
         }
     }
 
-    void updateConnection(vec pos, connection_t connection)
+    void updateConnection(vec& pos, connection_t connection)
     {
         if (voxel.size == 1)
         {
@@ -119,7 +122,7 @@ public:
         }
     }
 
-    OctoNode* at(vec pos)
+    OctoNode* at(vec& pos)
     {
         if (voxel.size == 1)
             return this;
@@ -149,7 +152,7 @@ public:
 
     }
 
-    Octree(vec pos, int size)
+    Octree(vec& pos, int size)
     {
         size = 1 << size;
         root = OctoNode(pos - vec(size / 2, size / 2, size / 2), size);
@@ -162,6 +165,7 @@ public:
 
         vector<vec> lsteps = steps;
         int used = 0;
+        int size = base->voxel.size;
 
         connection_t connection = 0;
 
@@ -177,12 +181,12 @@ public:
                 if (step == vec(0, 0, 0))
                     continue;
                 
-                vec pos = base->voxel.pos + step;
+                vec& pos = base->voxel.pos + step * size;
                 for (auto& child : currentNode->children)
                 {
                     if (pos >= child.voxel.pos && pos < (child.voxel.pos + child.voxel.size))
                     {
-                        if (child.filling(pos) == FILLED)
+                        if (child.filling(pos, size) == FILLED)
                             connection += (1 << i);
 
                         step = vec(0, 0, 0);
@@ -198,7 +202,7 @@ public:
         base->voxel.connection = connection;
     }
 
-    void put(vec pos)
+    void put(vec& pos)
     {
         root.put(pos);
     }
@@ -208,14 +212,21 @@ public:
         updateConnections(&root);
     }
 
+    OctoNode* at(vec& pos)
+    {
+        return root.at(pos);
+    }
+
 private:
     void updateConnections(OctoNode* node)
     {
-        if (node->voxel.size == 1)
-        {
-            updateConnectionAt(node);
+        if (node->type == EMPTY)
             return;
-        }
+
+        updateConnectionAt(node);
+
+        if (node->voxel.size == 1)
+            return;
 
         if (node->children.size() == 0)
             return;
@@ -225,38 +236,54 @@ private:
     }
 };
 
+const double hsqrt3 = sqrt(3) / 2;
+
 class Sphere
 {
 public:
     int r;
     vec pos;
 
-    Sphere(vec pos, int r)
+    Sphere(vec& pos, int r)
     {
         this->pos = pos;
         this->r = r;
     }
 
-    bool in(vec a)
+    bool in(vec& a)
     {
-        a = a - pos;
-        return a.sqlength() < isq(r);
+        return (a - pos).sqlength() < sq(r);
     }
 
-    int checkCube(vec origin, int size)
+    int checkCube(vec& origin, float size)
     {
-        if ((origin + vec(size / 2, size / 2, size / 2) - pos).sqlength() > isq(size + r))
-            return 0;
+        vec center = origin + vec(size / 2, size / 2, size / 2);
+        if ((center - pos).sqlength() > sq(hsqrt3 * size + r))
+            return EMPTY;
         
-        bool ans = true;
         for (int i = 0; i < 8; i++)
         {
             int xm = i & 1, ym = (i >> 1) & 1, zm = (i >> 2) & 1;
-            vec p = origin + vec(size * xm, size * ym, size * zm);
-            ans &= in(p);
+
+            if (!in(origin + vec(xm, ym, zm) * size))
+                return PARTIALLY_FILLED;
         }
 
-        return ans ? 2 : 1;
+
+        return FILLED;
+    }
+
+
+    void updateConnectionAt(OctoNode* node)
+    {
+        if (node == nullptr)
+            return;
+        connection_t connection = NO_CONNECTIONS;
+        for (int i = 0; i < steps.size(); i++)
+            if ((checkCube(node->voxel.pos + (steps[i] * node->voxel.size), node->voxel.size) == FILLED && node->voxel.size != 1) || 
+                (checkCube(node->voxel.pos + (steps[i] * node->voxel.size), node->voxel.size) != EMPTY && node->voxel.size == 1))
+                connection += (1 << i);
+        node->voxel.connection = connection;
     }
 
     void put(Octree& oct)
@@ -265,7 +292,6 @@ public:
 
         queue<OctoNode*> q;
         q.push(&oct.root);
-
         while (!q.empty())
         {
             OctoNode* node = q.front();
@@ -280,21 +306,19 @@ public:
             if (node->children.size() == 0)
                 node->buildChildren();
 
-            for (auto& child : node->children)
+            for (OctoNode& child : node->children)
             {
                 int res = checkCube(child.voxel.pos, child.voxel.size);
 
-                if (res == 0)
+                if (res == EMPTY)
                     continue;
-
-                if (child.type == EMPTY)
-                    child.type = PARTIALLY_FILLED;
-
-                if (res == 1)
-                    q.push(&child);
                 
-                if (res == 2)
-                    child.type = FILLED;
+                updateConnectionAt(&child);
+                
+                child.type = res;
+
+                if (child.voxel.connection != FULLY_CONNECTED)
+                    q.push(&child);
             }
         }
     }

@@ -9,8 +9,8 @@ class Voxel
 public:
 	vec pos;
 	int size;
-
-    connection_t connection = 0;
+	
+    connection_t connection = NO_CONNECTIONS;
 
 	Voxel() 
 	{

@@ -65,19 +65,19 @@ void computeMatricesFromInputs(Camera &camera) {
 	vec3 position = camera.pos;
 	// Move forward
 	if (glfwGetKey(gl.window, GLFW_KEY_UP) == GLFW_PRESS) {
-		position += direction * deltaTime * 51.f;
+		position += direction * deltaTime * 50.f;
 	}
 	// Move backward
 	if (glfwGetKey(gl.window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		position -= direction * deltaTime * 51.f;
+		position -= direction * deltaTime * 50.f;
 	}
 	// Strafe right
 	if (glfwGetKey(gl.window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		position += right * deltaTime * 51.f;
+		position += right * deltaTime * 50.f;
 	}
 	// Strafe left
 	if (glfwGetKey(gl.window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		position -= right * deltaTime * 51.f;
+		position -= right * deltaTime * 50.f;
 	}
 
 	camera.setPosition(position);
@@ -96,34 +96,17 @@ int main(void)
 	Camera camera;
 	glfwSetCursorPos(gl.window, 1024 / 2, 768 / 2);
 
-	Octree oct(vec(0,0,0), 20);
+	Octree oct(vec(0,0,0), 30);
 
 	Timer t;
 	t.begin();
-	
-	Sphere sphere(vec(0,0,0), 150);
+
+	Sphere sphere(vec(0, 0, 0), 400);
 	sphere.put(oct);
 
-/*
-	for (int x = -64; x < 64; x++)
-	{
-		for (int y = -64; y < 64; y++)
-		{
-			for (int z = -64; z < 64; z++)
-			{
-				if (sqrt(x * x + y * y + z * z) < 16)
-					oct.put(vec(x, z, y));
-			}
-		}
-	}	
-	*/
-
 	cout << "Building tree: " << t.ms() << endl;
+
 	t.clear();
-
-	oct.updateConnections();
-	cout << "Update connections: " << t.ms() << endl;
-
 	Buffer buf;
 	buf.oct = &oct;
 	buf.camera = &camera;

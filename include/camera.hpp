@@ -8,7 +8,7 @@ class Camera
 public:
 	Camera()
 	{
-		FOV = radians(60.0f);
+		FOV = radians(70.0f);
 
 		pos = vec3(50, 50, 50);
 		COV = vec3(0, 0, 0);
@@ -25,7 +25,7 @@ public:
 			up
 		);
 
-		Projection = perspective(FOV, 4.0f / 3.0f, 0.1f, 1000.0f);
+		Projection = perspective(FOV, 4.0f / 3.0f, 0.1f, 10000.0f);
 		MVP = Projection * View;
 	}
 

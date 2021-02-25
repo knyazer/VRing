@@ -15,7 +15,8 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "chrono": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "cmath": "cpp"
     },
     "cmake.configureOnOpen": true
 }

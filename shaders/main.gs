@@ -55,7 +55,7 @@ void main() {
                 continue;
             }
 
-            // Normal culling
+            // Normal culling ***DO NOT COMMENT***
             if (dot(normals[i >> 2], relativePos) > 0)
             {
                 i += 3;
