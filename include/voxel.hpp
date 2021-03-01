@@ -7,6 +7,7 @@
 class Voxel
 {
 public:
+	//Cell* cell;
 	vec pos;
 	int size;
 	

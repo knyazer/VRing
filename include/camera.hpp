@@ -8,9 +8,9 @@ class Camera
 public:
 	Camera()
 	{
-		FOV = radians(70.0f);
+		FOV = radians(60.0f);
 
-		pos = vec3(50, 50, 50);
+		pos = vec3(1000, 1000, 1000);
 		COV = vec3(0, 0, 0);
 		up = vec3(0, 1, 0);
 

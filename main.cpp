@@ -22,6 +22,7 @@ using namespace glm;
 #include <include/voxel.hpp>
 #include <include/octree.hpp>
 #include <include/timer.hpp>
+#include <include/VList.hpp>
 
 GL gl;
 
@@ -101,7 +102,7 @@ int main(void)
 	Timer t;
 	t.begin();
 
-	Sphere sphere(vec(0, 0, 0), 400);
+	Sphere sphere(vec(0, 0, 0), 700);
 	sphere.put(oct);
 
 	cout << "Building tree: " << t.ms() << endl;
@@ -110,22 +111,29 @@ int main(void)
 	Buffer buf;
 	buf.oct = &oct;
 	buf.camera = &camera;
-	gl.bindBuffer(buf);
+	buf.update();
 
 	cout << "Binding buffer: " << t.ms() << endl;
 
+	gl.makeBuffers();
+
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS); 
 
 	double lastTime = glfwGetTime();
  	int nbFrames = 0;
- 	do{
+ 	do
+	{
 		double currentTime = glfwGetTime();
 		nbFrames++;
-		if (currentTime - lastTime >= 1.0)
+
+		if (currentTime - lastTime >= 3.0)
 		{
-			printf("%.2f ms/frame\n", 1000.0 / double(nbFrames));
+			printf("%.2f ms/frame\n", 3000.0 / double(nbFrames));
 			nbFrames = 0;
-			lastTime += 1.0;
+			lastTime += 3.0;
 		}
 
 		computeMatricesFromInputs(camera);

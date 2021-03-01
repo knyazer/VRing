@@ -5,9 +5,11 @@
 #include <include/octree.hpp>
 #include <include/camera.hpp>
 #include <include/timer.hpp>
+#include <include/VList.hpp>
 
 #include <iostream>
 #include <algorithm>
+
 using namespace std;
 
 class Buffer
@@ -27,12 +29,6 @@ public:
 	{
 		Timer t;
 		t.begin();
-
-		vertexes.clear();
-		vertexes.reserve(long(5e7));
-
-		connections.clear();
-		connections.reserve(long(5e7));
 
 		voxelsDrawed = 0;
 		iters = 0;
@@ -59,8 +55,17 @@ public:
 				
 				if (child->voxel.size == 1)
 				{
-					child->voxel.update(vertexes, connections);
 					voxelsDrawed++;	
+
+					for (int i = 0; i < 6; i++)
+					{
+						if ((child->voxel.connection & (1 << i)) == 0)
+						{
+							g_vlist.add(new Cell());
+							(*g_vlist.end).put(child->voxel.pos, i);
+						}
+					}
+
 					continue;
 				}
 
@@ -68,30 +73,6 @@ public:
 			}
 		}
 	}
-
-	void loadOctreeRec(OctoNode* node)
-	{
-		iters++;
-		
-		OctoNode* child = &node->children[0];
-		for (int i = 0; i < 8; i++, child++)
-		{
-			if (child->type == EMPTY || child->voxel.connection == FULLY_CONNECTED)
-				continue;
-			
-			if (child->voxel.size == 1)
-			{
-				child->voxel.update(vertexes, connections);
-				voxelsDrawed++;	
-				continue;
-			}
-
-			loadOctreeRec(child);
-		}
-	}
-
-	vector<int> vertexes;
-	vector<connection_t> connections;
 };
 
 #endif
